@@ -1,0 +1,87 @@
+-- Made by Purble (@maselko7 on Roblox)
+-- ROBLOX PROFILE: https://www.roblox.com/users/515640426/profile
+
+-- WHAT YOU NEED?
+-- - A LocalScript in StarterPlayer>StarterPlayerScripts
+-- - A Server (normal) Script in ServerScriptService
+-- - A RemoteEvent in ReplicatedStorage
+-- - Developer item/s
+-- - A button to buy a Developer Item (Optional)
+
+
+-- Server Script (PUT IT IN ServerScriptService)
+
+local remote = nil -- PUT UR RemoreEvent HERE
+
+function onSendMessgae(quanity, plr)
+
+	remote:FireAllClients(quanity, plr)
+
+end
+
+game.MarketplaceService.ProcessReceipt = function(receiptInfo)
+
+	local player = game.Players:GetPlayerByUserId(receiptInfo.PlayerId).Name
+
+	if receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	
+  elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+
+	end
+end
+
+
+
+-- LocalScript (PUT IT IN StarterPlayer>StarterPlayerScripts)
+
+local remote = nil     -- PUT UR RemoreEvent HERE
+
+remote.OnClientEvent:Connect(function(robux, plr)
+	
+	if game.TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		
+		game.TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage("[Server] "..plr .. " donated " .. robux .. " R$ to the game!")
+		
+	elseif game.TextChatService.ChatVersion == Enum.ChatVersion.LegacyChatService then
+
+		game.StarterGui:SetCore("ChatMakeSystemMessage", { -- YOU CAN SET IT UP IF YOU WANT TO
+			Text = "[Server] "..plr .. " donated " .. robux .. " R$ to the game!";
+			Font = Enum.Font.Cartoon;
+			Color = Color3.fromRGB(255, 255, 255);
+			FontSize = Enum.FontSize.Size48;
+		})
+
+	end
+	
+	
+end)
+
+
+-- You can also create a button that will ask player for buying a product
+-- Create a TextButton and put it inside ScreenGui or somewhere else
+-- Create a Server Script  and put it into that TextButton 
+-- Put this code into that Script:
+
+local productID = 0 -- REPLACE THE '0' WITH THE Developer Item's ID
+
+script.Parent.MouseButton1Click:connect(function()
+	game:GetService("MarketplaceService"):PromptProductPurchase(game.Players.LocalPlayer, productID)
+end)
+
+
+
+-- And you're done! Thanks for using my asset!
+-- If something's off, text me!
+
+
