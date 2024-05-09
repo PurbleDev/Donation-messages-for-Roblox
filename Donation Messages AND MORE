@@ -1,0 +1,381 @@
+-- Made by Purble (@maselko7 on Roblox)
+-- ROBLOX PROFILE: https://www.roblox.com/users/515640426/profile
+
+-- WHAT YOU NEED?
+-- - A LocalScript in StarterPlayer>StarterPlayerScripts
+-- - A Server (normal) Script in ServerScriptService
+-- - A RemoteEvent in ReplicatedStorage
+-- - Developer item/s
+-- - A button to buy a Developer Item (Optional)
+
+
+-- Server Script (PUT IT IN ServerScriptService)
+
+local remote = nil -- PUT UR RemoreEvent HERE
+
+function onSendMessgae(quanity, plr)
+
+	remote:FireAllClients(quanity, plr)
+
+end
+
+game.MarketplaceService.ProcessReceipt = function(receiptInfo)
+
+	local player = game.Players:GetPlayerByUserId(receiptInfo.PlayerId).Name
+
+	if receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	
+  elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+
+	end
+end
+
+
+
+-- LocalScript (PUT IT IN StarterPlayer>StarterPlayerScripts)
+
+local remote = nil     -- PUT UR RemoreEvent HERE
+
+remote.OnClientEvent:Connect(function(robux, plr)
+	
+	if game.TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+		
+		game.TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage("[Server] "..plr .. " donated " .. robux .. " R$ to the game!")
+		
+	elseif game.TextChatService.ChatVersion == Enum.ChatVersion.LegacyChatService then
+
+		game.StarterGui:SetCore("ChatMakeSystemMessage", { -- YOU CAN SET IT UP IF YOU WANT TO
+			Text = "[Server] "..plr .. " donated " .. robux .. " R$ to the game!";
+			Font = Enum.Font.Cartoon;
+			Color = Color3.fromRGB(255, 255, 255);
+			FontSize = Enum.FontSize.Size48;
+		})
+
+	end
+	
+	
+end)
+
+
+-- You can also create a button that will ask player for buying a product
+-- Create a TextButton and put it inside ScreenGui or somewhere else
+-- Create a Server Script  and put it into that TextButton 
+-- Put this code into that Script:
+
+local productID = 0 -- REPLACE THE '0' WITH THE Developer Item's ID
+
+script.Parent.MouseButton1Click:connect(function()
+	game:GetService("MarketplaceService"):PromptProductPurchase(game.Players.LocalPlayer, productID)
+end)
+
+-- OPTIONAL:
+
+-- Saving amount donated:
+
+
+-- New Server Script (in ServerScriptService)
+
+local dS = game:GetService("DataStoreService")
+local autoSave = 1
+local dataVer = 1
+local doSave = true
+local dataStoreVer = dS:GetDataStore("Players Data, version "..dataVer)
+
+local statFolder = Instance.new("Folder")
+statFolder.Parent = script
+statFolder.Name = "PlayerData"
+
+local int = Instance.new("IntValue")
+int.Parent = statFolder
+int.Name = "Donated"
+int.Value = 0
+
+local function create_table(Player)
+	
+	local player_stats = {}
+
+	for i, v in pairs(script:FindFirstChild("Plr"):GetChildren()) do
+		
+		if v:IsA("Folder") then
+			
+			for i, j in pairs(Player:FindFirstChild(v.Name):GetChildren()) do
+				
+				player_stats[j.Name.." "..v.Name] = j.Value
+				
+			end
+			
+		end
+		
+	end
+
+	return player_stats
+	
+end
+
+local function saveData(plr)
+	local playerStats = create_table(plr)
+
+	local succes, err = pcall(function()
+		local dSKey = plr.UserId
+		dataStoreVer:SetAsync(dSKey, playerStats)
+	end)
+
+	if succes then
+		print("The data has been saved!")
+	else
+		warn(err)
+	end
+end
+
+game.Players.PlayerAdded:Connect(function(plr)
+	local dSKey = plr.UserId
+	local data = dataStoreVer:GetAsync(dSKey)
+
+	for _, folder in pairs(script:FindFirstChild("Plr"):GetChildren()) do
+
+		if folder:IsA("Folder") then
+
+			local clone = folder:Clone()
+			clone.Parent = plr
+
+			if doSave == true then
+				for _, item in pairs(clone:GetChildren()) do			
+					if data then
+						item.Value = data[item.Name.." "..folder.Name] + 1
+						continue
+					else
+						warn("There is no data!")
+						continue
+					end
+				end				
+			end
+		end
+
+		while autoSave.Value > 0 do
+			task.wait(autoSave.Value * 60)
+			saveData(plr)
+			print("Saved", data)
+		end
+
+	end
+end)
+
+
+game.Players.PlayerRemoving:Connect(function(plr)
+	if doSave == true then
+		saveData(plr)
+	end
+end)
+
+-- Server Script(update)
+
+local remote = nil -- PUT UR RemoreEvent HERE
+
+function onSendMessgae(quanity, plr)
+
+	remote:FireAllClients(quanity, plr)
+
+end
+
+game.MarketplaceService.ProcessReceipt = function(receiptInfo)
+
+	local player = game.Players:GetPlayerByUserId(receiptInfo.PlayerId).Name
+
+	if receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		player:FindFirstChild(PlayerData).Donated.Value += 0 -- REPLACE THE '0' WITH THE Developer Item's PRICE
+
+		return Enum.ProductPurchaseDecision.PurchaseGranted
+	elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		player:FindFirstChild(PlayerData).Donated.Value += 0 -- REPLACE THE '0' WITH THE Developer Item's PRICE
+	
+ 	 elseif receiptInfo.ProductId == 0 then -- REPLACE THE '0' WITH THE Developer Item's ID
+
+		onSendMessgae(0, player) -- REPLACE THE '0' WITH THE Developer Item's PRICE
+		player:FindFirstChild(PlayerData).Donated.Value += 0 -- REPLACE THE '0' WITH THE Developer Item's PRICE
+	end
+end
+
+
+-- OPTIONAL
+-- Gui Confetti when someone donated:
+
+-- LocalScript(update)
+
+local remote = nil
+
+local tweenService = game:GetService("TweenService")
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = game.Players.LocalPlayer.PlayerGui
+gui.DisplayOrder = 100
+gui.ResetOnSpawn = false
+
+local ConfettiGui = Instance.new("Frame")
+ConfettiGui.BackgroundTransparency = 1
+ConfettiGui.Parent = gui
+ConfettiGui.Size = UDim2.fromScale(1,1)
+
+local Container = Instance.new("Folder")
+Container.Parent = ConfettiGui
+Container.Name = "Container"
+
+local SizesGui = Instance.new("Folder")
+SizesGui.Parent = ConfettiGui
+SizesGui.Name = "Sizes"
+
+for i = 1, 6, 1 do
+
+	local confetti = Instance.new("Frame")
+	confetti.Parent = SizesGui
+	confetti.Name = "Confetti"
+	confetti.Size = UDim2.fromScale(math.random(46, 70) * 0.001, math.random(2, 4) * 0.01)
+	confetti.Visible = false
+
+end
+
+local Sizes = SizesGui:GetChildren()
+
+local tweenInfo = TweenInfo.new(1)
+
+local RNG = Random.new()
+local Colors = {
+	Color3.fromRGB(255, 0, 0),
+	Color3.fromRGB(12, 235, 255),
+	Color3.fromRGB(39, 255, 39),
+	Color3.fromRGB(28, 20, 255),
+	Color3.fromRGB(255, 184, 61),
+	Color3.fromRGB(255, 87, 255)
+}
+
+local plrName = Instance.new("TextLabel")
+plrName.Parent = gui
+plrName.Size = UDim2.fromScale(0.25,0.2)
+plrName.Position = UDim2.fromScale(0.375,0.4)
+plrName.TextTransparency = 1
+plrName.TextStrokeTransparency = 1
+plrName.TextColor3 = Color3.fromRGB(255,255,255)
+plrName.TextStrokeColor3 = Color3.fromRGB(0,0,0)
+plrName.Font = Enum.Font.SourceSans
+plrName.TextScaled = true
+plrName.BackgroundTransparency = 1
+
+local sound = Instance.new("Sound")
+sound.Parent = plrName
+sound.SoundId = "rbxassetid://7933571710"
+sound.PlaybackSpeed = 0.9
+
+local function ConfettiVisual()
+
+	task.spawn(function()
+
+		for i = 1, 50, 1 do
+
+			local RandomConfetti = Sizes[math.random(1, #Sizes)]
+
+			local newConfetti = RandomConfetti:Clone()
+			newConfetti.BackgroundColor3 = Colors[math.random(1, #Colors)]
+			newConfetti.Position = UDim2.new(RNG:NextNumber(-0.3,1.3), 0, -0.2, 0)
+			newConfetti.Rotation = RNG:NextNumber(10,350)
+			newConfetti.Visible = true
+			newConfetti.Parent = Container
+
+
+			local ConfettiFallInfo = TweenInfo.new(RNG:NextNumber(1, 2.5), Enum.EasingStyle.Linear, Enum.EasingDirection.Out, 0, false)
+			local ConfettTween = tweenService:Create(newConfetti, ConfettiFallInfo, {Position = UDim2.new(newConfetti.Position.X.Scale, 0, newConfetti.Position.Y.Scale + 1.3, 0)})
+			ConfettTween:Play()
+
+			local completedTween = nil
+			completedTween = ConfettTween.Completed:Connect(function()
+				task.wait(2.8)
+
+				completedTween:Disconnect()
+				completedTween = nil
+				ConfettTween:Destroy()
+				newConfetti = nil
+
+				for _, frame in Container:GetDescendants() do
+
+					frame:Destroy()
+
+				end
+			end)
+
+		end
+
+	end)
+
+end
+
+function PlayConfetti()
+
+	for i = 1, 4, 1 do
+
+		ConfettiVisual()
+		task.wait(0.35)
+
+	end
+
+end
+
+function onDonation(Plr, amount)
+
+	plrName.Text = Plr .. " just donated " .. amount .. " R$! 🥳"
+	local tween = tweenService:Create(plrName, tweenInfo, {TextTransparency = 0})
+	tween:Play()
+	local tween2 = tweenService:Create(plrName, tweenInfo, {TextStrokeTransparency = 0})
+	tween2:Play()
+	sound:Play()
+	PlayConfetti()
+
+	task.wait(5)
+	local tween = tweenService:Create(plrName, tweenInfo, {TextTransparency = 1})
+	tween:Play()
+	local tween2 = tweenService:Create(plrName, tweenInfo, {TextStrokeTransparency = 1})
+	tween2:Play()
+	task.wait(1)
+
+end
+
+
+game.ReplicatedStorage.Messages.SendMessage.OnClientEvent:Connect(function(robux, plr)
+
+	if game.TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
+
+		game.TextChatService.TextChannels.RBXGeneral:DisplaySystemMessage("[Server] "..plr .. " donated " .. robux .. " R$ to the game!")
+
+	elseif game.TextChatService.ChatVersion == Enum.ChatVersion.LegacyChatService then
+
+		game.StarterGui:SetCore("ChatMakeSystemMessage", {
+			Text = "[Server] "..plr .. " donated " .. robux .. " R$ to the game!";
+			Font = Enum.Font.Cartoon;
+			Color = Color3.fromRGB(255, 255, 255);
+			FontSize = Enum.FontSize.Size48;
+		})
+
+	end
+
+	onDonation(plr, robux)
+
+
+end)
+
+-- END
+
+
+-- And you're done! Thanks for using my asset!
+-- If something's off, text me!
